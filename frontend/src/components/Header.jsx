@@ -22,13 +22,16 @@ export default function Header() {
       <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect>
         <Container>
           <Navbar.Brand as={NavLink} to="/">
-            MERN Auth
+            Poster
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
               {user ? (
                 <>
+                  <Nav.Link as={NavLink} to="/new-post">
+                    New post
+                  </Nav.Link>
                   <NavDropdown title={user.name} id="username">
                     {user.role === "admin" && (
                       <NavDropdown.Item as={NavLink} to="/admin/panel">

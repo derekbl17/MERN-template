@@ -14,6 +14,7 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import AdminScreen from "./screens/AdminScreen.jsx";
 import NotFoundScreen from "./screens/NotFoundScreen.jsx";
 import NoAuthorization from "./screens/NoAuthorization.jsx";
+import CreatePostScreen from "./screens/CreatePostScreen.jsx";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +30,10 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <PrivateRoute allowed={["user", "admin"]} />,
-        children: [{ path: "profile", element: <ProfileScreen /> }],
+        children: [
+          { path: "profile", element: <ProfileScreen /> },
+          { path: "new-post", element: <CreatePostScreen /> },
+        ],
       },
       {
         path: "admin",
