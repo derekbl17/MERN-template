@@ -8,7 +8,7 @@ const getPosts=asyncHandler(async(req,res)=>{
 })
 
 const getActivePosts=asyncHandler(async(req,res)=>{
-    const posts=await Post.find().active();
+    const posts=await Post.find().active().populate('category','name').populate('author','name').lean();
     res.status(200).json(posts)
 })
 

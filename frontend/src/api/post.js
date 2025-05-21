@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export const createPost=async(postData)=>{
@@ -9,5 +9,17 @@ export const createPost=async(postData)=>{
 export function useCreatePostMutation(){
     return useMutation({
         mutationFn:createPost
+    })
+}
+
+export const getActivePosts=async()=>{
+    const data=await axios.get('/api/posts/active');
+    return data;
+}
+
+export function usePostsQuery(){
+    return useQuery({
+        queryKey:['posts'],
+        queryFn: getActivePosts,
     })
 }

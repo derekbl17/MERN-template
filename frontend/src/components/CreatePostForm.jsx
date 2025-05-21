@@ -50,7 +50,7 @@ const CreatePostForm = () => {
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="p-4 border rounded">
+    <Form onSubmit={handleSubmit} className="p-4 border rounded bg-secondary">
       <h2 className="mb-4">Create New Post</h2>
 
       {/* Error Handling */}

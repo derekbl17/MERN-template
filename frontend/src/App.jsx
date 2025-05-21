@@ -12,13 +12,13 @@ function App() {
   if (isLoading) return <Loader />;
 
   return (
-    <>
+    <div className="min-vh-100 bg-dark text-light font-monospace">
       <Header />
       <ToastContainer />
       <Container className="my-2">
         <Outlet />
       </Container>
-    </>
+    </div>
   );
 }
 
