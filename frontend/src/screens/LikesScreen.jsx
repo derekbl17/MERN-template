@@ -1,10 +1,10 @@
-import { usePostsQuery } from "../api/post";
 import { Container, Row, Col } from "react-bootstrap";
-import PostCard from "./PostCard";
+import { useLikedPostsQuery } from "../api/post";
+import PostCard from "../components/PostCard";
 
-const PostsDisplay = () => {
-  const { data: posts, isLoading, error } = usePostsQuery();
-
+const LikesScreen = () => {
+  const { data: likedPosts, isLoading, error } = useLikedPostsQuery();
+  console.log(likedPosts);
   if (isLoading) return <div>Loading...</div>;
   if (error)
     return (
@@ -18,7 +18,7 @@ const PostsDisplay = () => {
   return (
     <Container className="mt-4">
       <Row>
-        {posts.data?.map((post) => (
+        {likedPosts.data?.map((post) => (
           <Col md={4} key={post._id} className="mb-4">
             <PostCard post={post} />
           </Col>
@@ -28,4 +28,4 @@ const PostsDisplay = () => {
   );
 };
 
-export default PostsDisplay;
+export default LikesScreen;

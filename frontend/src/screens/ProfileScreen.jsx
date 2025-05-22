@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import Loader from "../components/Loader";
 import { useUpdateUserMutation } from "../api/user";
 import { useAuth } from "../context/authContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ProfileScreen = () => {
   const [name, setName] = useState("");
@@ -12,7 +13,9 @@ const ProfileScreen = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const { user, setUser, isLoading } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { user, isLoading } = useAuth();
 
   const { mutateAsync: updateUser, isPending } = useUpdateUserMutation();
 
@@ -29,13 +32,14 @@ const ProfileScreen = () => {
       toast.error("Passwords do not match");
     } else {
       try {
+        console.log("trying update");
         const res = await updateUser({
           _id: user._id,
           name,
           email,
           password,
         });
-        setUser(res);
+        queryClient.setQueryData(["currentUser"], res);
         toast.success("Profile updated");
       } catch (err) {
         toast.error(err?.data?.message || err.error);

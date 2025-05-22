@@ -84,5 +84,8 @@ postSchema.query.active = function() {
 postSchema.query.blocked = function() {
   return this.where({ status: 'blocked' });
 };
+postSchema.query.liked=function(userId){
+  return this.where({likes:userId})
+}
   
 module.exports=mongoose.model('Post',postSchema)

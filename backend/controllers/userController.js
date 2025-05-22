@@ -81,7 +81,7 @@ const confirmUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.userId).select('-password');
     if (user) {
       res.json({
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role
@@ -95,7 +95,7 @@ const confirmUser = asyncHandler(async (req, res) => {
 // Update user profile
 // PUT /api/users/profile
 const updateUser=asyncHandler(async(req,res)=>{
-    const user=await User.findById(req.user._id);
+    const user=await User.findById(req.user.userId);
     if(user){
         user.name=req.body.name || user.name;
         user.email=req.body.email || user.email;

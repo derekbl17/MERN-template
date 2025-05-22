@@ -17,6 +17,10 @@ const getBlockedPosts=asyncHandler(async(req,res)=>{
     res.status(200).json(posts)
 })
 
+const getLikedPosts=asyncHandler(async(req,res)=>{
+    const posts=await Post.find().liked(req.user.userId).active()
+    res.status(200).json(posts)
+})
 const moderatePost = asyncHandler(async (req, res) => {
     const { action, reason } = req.body;
     
@@ -116,6 +120,8 @@ const toggleLikePost=asyncHandler(async(req,res)=>{
     const userId = req.user.userId;
     const likeIndex = post.likes.indexOf(userId);
 
+    console.log('trying to like as',req.user.userId)
+
     if (post.author.toString() === userId.toString()) {
         res.status(400);
         throw new Error('Cannot like your own post');
@@ -124,23 +130,25 @@ const toggleLikePost=asyncHandler(async(req,res)=>{
     // Toggle like
     if (likeIndex === -1) {
     // Add like
+    console.log('add like')
         post.likes.push(userId);
         await post.save();
         res.status(200).json({
             message: 'Post liked',
-            likesCount: post.likes.length,
+            likes: post.likes,
             isLiked: true
         });
     } else {
     // Remove like
+    console.log('rem like')
         post.likes.pull(userId);
         await post.save();
         res.status(200).json({
             message: 'Post unliked',
-            likesCount: post.likes.length,
+            likes: post.likes,
             isLiked: false
         });
     }
 })
 
-module.exports={getPosts,postPost,putPost,deletePost,moderatePost, getActivePosts, getBlockedPosts,toggleLikePost}
+module.exports={getPosts,postPost,putPost,deletePost,moderatePost, getActivePosts, getBlockedPosts,toggleLikePost,getLikedPosts}
