@@ -1,14 +1,39 @@
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const getCategories = async () => {
-  const { data } = await axios.get("/api/categories");
-  return data; // expected to be an array of { _id, name }
-};
+export function useCreateCategoryMutation(){
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn:async(categoryData)=>{
+      const {data}=await axios.post('/api/categories',{
+        name:categoryData.name
+      });
+      return data
+    },
+    onSuccess:(data)=>{
+      queryClient.setQueryData(['categories'],(old)=>[...old,data])
+    }
+  })
+}
 
 export function useCategoriesQuery() {
     return useQuery({
       queryKey: ["categories"],
-      queryFn: getCategories,
+      queryFn: async()=> {
+         const {data}=await axios.get("/api/categories");
+          return data
+        }
     });
-  }
+};
+
+export function useDeleteCategoryMutation(){
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn:async(categoryId)=>{
+      await axios.delete(`/api/categories/${categoryId}`)
+    },
+    onSuccess:()=>{
+      queryClient.invalidateQueries(['categories'])
+    }
+  })
+}

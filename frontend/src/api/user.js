@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 const USERS_URL='/api/users'
 
@@ -8,8 +8,11 @@ export const loginUser = async (credentials) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
     });
-    if (!res.ok) throw new Error('Login failed');
-    return res.json();
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || 'Login failed');
+
+    return data;
   };
   
   export const logoutUser = async () => {
@@ -53,3 +56,39 @@ export const loginUser = async (credentials) => {
       },
     });
   }
+
+export function useGetAllUsersQuery(){
+  return useQuery({
+    queryKey:['users'],
+    queryFn: async()=>{
+      const {data}=await axios.get('/api/users/all')
+      return data
+    }
+  })
+}
+
+export function useDeleteUserMutation(){
+  const queryClient=useQueryClient()
+  return useMutation({
+    mutationFn: async(userId)=>{
+      const {data}=await axios.delete(`/api/users/${userId}`);
+      return data
+    },
+    onSuccess:()=>{
+      queryClient.invalidateQueries(['users'])
+    }
+  })
+}
+
+export function useToggleUserStatusMutation(){
+  const queryClient=useQueryClient()
+  return useMutation({
+    mutationFn: async(userId)=>{
+      const {data}=await axios.patch(`/api/users/${userId}`);
+      return data
+    },
+    onSuccess:()=>{
+      queryClient.invalidateQueries(['users'])
+    }
+  })
+}

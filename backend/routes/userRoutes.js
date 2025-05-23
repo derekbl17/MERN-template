@@ -6,7 +6,10 @@ const {
     logoutUser,
     getUser,
     updateUser,
-    confirmUser
+    confirmUser,
+    getAllUsers,
+    deleteUser,
+    toggleBlock
 } = require('../controllers/userController.js');
 const {protect,adminProtect}=require('../middleware/authMiddleware.js')
 
@@ -15,6 +18,9 @@ router.post('/auth', authUser)
 router.post('/register', registerUser)
 router.post('/logout',logoutUser)
 router.route('/profile').get(protect,getUser).put(protect,updateUser)
+router.get('/all',protect,adminProtect,getAllUsers)
+router.delete('/:id',protect,adminProtect,deleteUser)
+router.patch('/:id',protect,adminProtect,toggleBlock)
 
 router.get('/admin',protect,adminProtect,(req,res)=>{
     console.log('hi admin')

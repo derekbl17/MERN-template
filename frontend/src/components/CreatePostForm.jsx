@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Form, Button, Alert, Spinner, Row, Col } from "react-bootstrap";
 import { useCreatePostMutation } from "../api/post";
 import { useCategoriesQuery } from "../api/category";
+import { toast } from "react-toastify";
 
 const CreatePostForm = () => {
   const [formData, setFormData] = useState({
@@ -45,6 +46,10 @@ const CreatePostForm = () => {
           imageUrl: "",
           category: "",
         });
+        toast.success("Post created!");
+      },
+      onError: (err) => {
+        toast.error(err.response?.data?.message || "Failed to create post");
       },
     });
   };

@@ -26,7 +26,7 @@ const LoginScreen = () => {
       await login({ email, password });
       navigate("/");
     } catch (err) {
-      toast.error(err?.data?.message || err.error);
+      toast.error(err?.message);
     }
   };
   return (

@@ -1,7 +1,7 @@
 const mongoose=require('mongoose')
 
 const categorySchema=mongoose.Schema({
-        name:{type:String, required:[true,'category cant be empty'], unique:true}
+        name:{type:String, required:[true,'category cant be empty'], unique:[true, 'category already exists!']}
     },
     {
     timestamps:true

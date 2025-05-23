@@ -2,13 +2,47 @@ import { Card, Button, Badge } from "react-bootstrap";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { useAuth } from "../context/authContext";
 import { useLikePostMutation } from "../api/post";
+import { toast } from "react-toastify";
+import { useState, useEffect } from "react";
 
 const PostCard = ({ post }) => {
   const { user } = useAuth();
-  const { mutate: likePost } = useLikePostMutation();
+  const { mutate: likePost, error, isError } = useLikePostMutation();
+
+  const [imageError, setImageError] = useState(false);
+  const [imageUrl, setImageUrl] = useState(
+    post.imageUrl?.trim() ? post.imageUrl : null
+  );
+
+  useEffect(() => {
+    // Basic URL format check before even trying to load
+    if (!imageUrl || !/^https?:\/\/.+\/.+$/.test(imageUrl)) {
+      setImageError(true);
+      return;
+    }
+
+    // Create a hidden image element to test loadability
+    const img = new Image();
+    img.src = imageUrl;
+
+    img.onload = () => {
+      setImageError(false);
+    };
+
+    img.onerror = () => {
+      setImageError(true);
+    };
+  }, [imageUrl]);
+
+  const placeholderUrl = `https://placehold.co/600x400?text=${encodeURIComponent(
+    post.title
+  )}`;
 
   const handleLike = () => {
-    likePost(post._id);
+    likePost(post._id, {
+      onError: (err) =>
+        toast.error(err.response?.data?.message || "Failed to like"),
+    });
   };
 
   return (
@@ -16,7 +50,7 @@ const PostCard = ({ post }) => {
       <div style={{ position: "relative" }}>
         <Card.Img
           variant="top"
-          src={post.imageUrl}
+          src={imageError ? placeholderUrl : imageUrl}
           alt={post.title}
           style={{ height: "200px", objectFit: "cover" }}
         />
