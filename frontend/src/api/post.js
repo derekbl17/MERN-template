@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import { Mutation, QueryClient, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "../context/authContext";
 
@@ -27,6 +27,16 @@ export function usePostsQuery(){
     })
 }
 
+export function useGetMyPostsQuery(){
+  return useQuery({
+    queryKey:['myPosts'],
+    queryFn: async()=> {
+      const data = axios.get('/api/posts/my-posts')
+      return data;
+    }
+  })
+}
+
 export function useLikedPostsQuery(){
     return useQuery({
         queryKey:['likedPosts'],
@@ -37,6 +47,7 @@ export function useLikedPostsQuery(){
 export function useLikePostMutation() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
+    
   
     return useMutation({
       mutationFn: async (postId) => {
@@ -87,3 +98,16 @@ export function useLikePostMutation() {
       },
     });
   }
+
+export function useEditPostMutation(){
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async(postData)=>{
+      const {data}=await axios.put(`/api/posts/${postData.postId}`,postData);
+      return data
+    },
+    onSuccess:()=>{
+      queryClient.invalidateQueries(['posts'])
+    }
+  })
+}

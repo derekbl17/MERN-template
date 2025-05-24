@@ -16,6 +16,7 @@ app.use(cookieParser())
 app.use('/api/posts', require('./routes/postRoutes'))
 app.use('/api/users',require('./routes/userRoutes'))
 app.use('/api/categories',require('./routes/categoryRoutes'))
+app.use('/api/comments',require('./routes/commentRoutes'))
 
 app.use(notFound)
 app.use(errorHandler)

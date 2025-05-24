@@ -33,6 +33,9 @@ export default function Header() {
                   <Nav.Link as={NavLink} to="/new-post">
                     New post
                   </Nav.Link>
+                  <Nav.Link as={NavLink} to="/my-posts">
+                    My Posts
+                  </Nav.Link>
                   <Nav.Link as={NavLink} to="/liked">
                     Liked posts
                   </Nav.Link>

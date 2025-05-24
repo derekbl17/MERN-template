@@ -8,12 +8,20 @@ const getPosts=asyncHandler(async(req,res)=>{
 })
 
 const getActivePosts=asyncHandler(async(req,res)=>{
-    const posts=await Post.find().active().populate('category','name').populate('author','name').lean();
+    const posts=await Post.find().active().populate('category','name').populate('author','name').populate({path: 'comments',
+        populate: {
+          path: 'author',
+          select: 'name'}}).lean();
     res.status(200).json(posts)
 })
 
 const getBlockedPosts=asyncHandler(async(req,res)=>{
     const posts=await Post.find().blocked();
+    res.status(200).json(posts)
+})
+
+const getOwnPosts=asyncHandler(async(req,res)=>{
+    const posts=await Post.find({author:req.user.userId}).populate('category','name').populate('author','name');
     res.status(200).json(posts)
 })
 
@@ -61,9 +69,9 @@ const moderatePost = asyncHandler(async (req, res) => {
 
 
 const postPost=asyncHandler(async(req,res)=>{
-    const { title, description, imageUrl, category } = req.body;
+    const { title, description, imageUrl, category, price } = req.body;
 
-    if (!title || !description || !imageUrl || !category) {
+    if (!title || !description || !imageUrl || !category || !price) {
         res.status(400);
         throw new Error('Please include all required fields');
     };
@@ -73,6 +81,7 @@ const postPost=asyncHandler(async(req,res)=>{
         description,
         imageUrl,
         category,
+        price,
         author: req.user.userId, // Automatically set from authenticated user
     })
     res.status(200).json(post)
@@ -151,4 +160,4 @@ const toggleLikePost=asyncHandler(async(req,res)=>{
     }
 })
 
-module.exports={getPosts,postPost,putPost,deletePost,moderatePost, getActivePosts, getBlockedPosts,toggleLikePost,getLikedPosts}
+module.exports={getPosts,postPost,putPost,deletePost,moderatePost, getActivePosts, getBlockedPosts,toggleLikePost,getLikedPosts,getOwnPosts}

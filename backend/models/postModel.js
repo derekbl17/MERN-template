@@ -21,7 +21,7 @@ const postSchema = new mongoose.Schema({
       //   message: props => `${props.value} is not a valid image URL!`
       // }
     },
-    
+    price:{type:mongoose.Schema.Types.Decimal128,required:true},
     // Relationships
     category: {
       type: mongoose.Schema.Types.ObjectId,

@@ -9,6 +9,7 @@ const CreatePostForm = () => {
     title: "",
     description: "",
     imageUrl: "",
+    price: "",
     category: "",
   });
 
@@ -44,6 +45,7 @@ const CreatePostForm = () => {
           title: "",
           description: "",
           imageUrl: "",
+          price: "",
           category: "",
         });
         toast.success("Post created!");
@@ -86,6 +88,18 @@ const CreatePostForm = () => {
           rows={3}
           name="description"
           value={formData.description}
+          onChange={handleChange}
+          required
+          maxLength={500}
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Price eur</Form.Label>
+        <Form.Control
+          type="number"
+          name="price"
+          value={formData.price}
           onChange={handleChange}
           required
           maxLength={500}

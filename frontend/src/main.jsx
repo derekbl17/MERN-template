@@ -16,6 +16,7 @@ import NotFoundScreen from "./screens/NotFoundScreen.jsx";
 import NoAuthorization from "./screens/NoAuthorization.jsx";
 import CreatePostScreen from "./screens/CreatePostScreen.jsx";
 import LikesScreen from "./screens/LikesScreen.jsx";
+import MyPosts from "./screens/MyPosts.jsx";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
           { path: "profile", element: <ProfileScreen /> },
           { path: "new-post", element: <CreatePostScreen /> },
           { path: "liked", element: <LikesScreen /> },
+          { path: "my-posts", element: <MyPosts /> },
         ],
       },
       {
