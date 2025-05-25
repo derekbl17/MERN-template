@@ -37,6 +37,15 @@ export function useGetMyPostsQuery(){
   })
 }
 
+
+export function useBlockedPostsQuery(){
+  return useQuery({
+      queryKey:['blockedPosts'],
+      queryFn: async()=> axios.get('/api/posts/blocked')
+  })
+}
+
+
 export function useLikedPostsQuery(){
     return useQuery({
         queryKey:['likedPosts'],
@@ -104,6 +113,32 @@ export function useEditPostMutation(){
   return useMutation({
     mutationFn: async(postData)=>{
       const {data}=await axios.put(`/api/posts/${postData.postId}`,postData);
+      return data
+    },
+    onSuccess:()=>{
+      queryClient.invalidateQueries(['posts'])
+    }
+  })
+}
+
+export function useDeletePostMutation(){
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async(postId)=>{
+      const {data}=await axios.delete(`/api/posts/${postId}`);
+      return data
+    },
+    onSuccess:()=>{
+      queryClient.invalidateQueries(['posts'])
+    }
+  })
+}
+
+export function useModeratePostMutation(){
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async(postId)=>{
+      const {data}=await axios.patch(`/api/posts/${postId}`);
       return data
     },
     onSuccess:()=>{

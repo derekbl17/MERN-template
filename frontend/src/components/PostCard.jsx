@@ -48,7 +48,7 @@ const PostCard = ({ post }) => {
     });
   };
 
-  return (
+  return post.status === "active" ? (
     <>
       <Card className="h-100">
         <div style={{ position: "relative" }}>
@@ -85,6 +85,55 @@ const PostCard = ({ post }) => {
             {post.description.length > 100
               ? `${post.description.substring(0, 100)}...`
               : post.description}
+          </Card.Text>
+          <Card.Text>
+            {parseFloat(post.price?.$numberDecimal).toFixed(2)} eur
+          </Card.Text>
+          <div className="mt-auto">
+            <Badge bg="secondary" className="me-2">
+              {post.category?.name || "Uncategorized"}
+            </Badge>
+            <Badge bg="info">{post.likes?.length || 0} Likes</Badge>
+          </div>
+        </Card.Body>
+        <Card.Footer className="text-muted">
+          <small>
+            Posted by {post.author?.name} on {post.createdAt}
+          </small>
+        </Card.Footer>
+        <Card.Footer>
+          <Button
+            variant="primary"
+            size="sm"
+            className="me-2"
+            onClick={() => setShowModal(true)}
+          >
+            View Post
+          </Button>
+        </Card.Footer>
+      </Card>
+      <PostModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        post={post}
+        img={imageError ? placeholderUrl : imageUrl}
+      />
+    </>
+  ) : (
+    <>
+      <Card className="h-100 bg-danger">
+        <div style={{ position: "relative" }}>
+          <Card.Img
+            variant="top"
+            src={imageError ? placeholderUrl : imageUrl}
+            alt={post.title}
+            style={{ height: "200px", objectFit: "cover" }}
+          />
+        </div>
+        <Card.Body className="d-flex flex-column">
+          <Card.Title as="h5">{post.title}</Card.Title>
+          <Card.Text className="text-muted">
+            This post has been blocked by the admin
           </Card.Text>
           <Card.Text>
             {parseFloat(post.price?.$numberDecimal).toFixed(2)} eur

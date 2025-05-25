@@ -16,12 +16,18 @@ const getActivePosts=asyncHandler(async(req,res)=>{
 })
 
 const getBlockedPosts=asyncHandler(async(req,res)=>{
-    const posts=await Post.find().blocked();
+    const posts=await Post.find().blocked().populate('category','name').populate('author','name').populate({path: 'comments',
+        populate: {
+          path: 'author',
+          select: 'name'}}).lean();
     res.status(200).json(posts)
 })
 
 const getOwnPosts=asyncHandler(async(req,res)=>{
-    const posts=await Post.find({author:req.user.userId}).populate('category','name').populate('author','name');
+    const posts=await Post.find({author:req.user.userId}).populate('category','name').populate('author','name').populate({path: 'comments',
+        populate: {
+          path: 'author',
+          select: 'name'}}).lean();
     res.status(200).json(posts)
 })
 
@@ -30,30 +36,22 @@ const getLikedPosts=asyncHandler(async(req,res)=>{
     res.status(200).json(posts)
 })
 const moderatePost = asyncHandler(async (req, res) => {
-    const { action, reason } = req.body;
     
-    // Validate input
-    if (!action || !['block', 'unblock'].includes(action)) {
-        res.status(400);
-        throw new Error('Action must be either "block" or "unblock"');
-    }
-
     const post = await Post.findById(req.params.id);
     if (!post) {
         res.status(404);
         throw new Error('Post not found');
     }
 
-    // Prepare update based on action
-    const update = { updatedAt: new Date() };
-    
-    if (action === 'block') {
-        update.status = 'blocked';
-        update.blockedReason = reason || 'No reason provided';
-    } else {
-        update.status = 'active';
-        update.$unset = { blockedReason: 1 };
-    }
+    // Determine new status (toggle current status)
+    const isCurrentlyBlocked = post.status === 'blocked';
+    const newStatus = isCurrentlyBlocked ? 'active' : 'blocked';
+
+    // Prepare update
+    const update = { 
+        status: newStatus,
+        updatedAt: new Date() 
+    };
 
     const updatedPost = await Post.findByIdAndUpdate(
         req.params.id,
@@ -62,7 +60,7 @@ const moderatePost = asyncHandler(async (req, res) => {
     );
 
     res.status(200).json({
-        message: `Post ${action === 'block' ? 'blocked' : 'unblocked'} successfully`,
+        message: `Post ${newStatus === 'blocked' ? 'blocked' : 'unblocked'} successfully`,
         post: updatedPost
     });
 });

@@ -1,12 +1,17 @@
 import { Modal, Button, Form, Badge, ListGroup } from "react-bootstrap";
 import { useState } from "react";
 import { useAuth } from "../context/authContext";
-import { useEditPostMutation } from "../api/post";
+import {
+  useDeletePostMutation,
+  useEditPostMutation,
+  useModeratePostMutation,
+} from "../api/post";
 import { toast } from "react-toastify";
 import {
   useCreateCommentMutation,
   useDeleteCommentMutation,
 } from "../api/comment";
+import Swal from "sweetalert2";
 
 const PostModal = ({ show, onHide, post, img }) => {
   const { user } = useAuth();
@@ -17,6 +22,8 @@ const PostModal = ({ show, onHide, post, img }) => {
   const [commentContent, setCommentContent] = useState("");
 
   const { mutateAsync: updatePost } = useEditPostMutation();
+  const { mutateAsync: deletePost } = useDeletePostMutation();
+  const { mutateAsync: moderatePost } = useModeratePostMutation();
   const [isEditing, setIsEditing] = useState(false);
 
   const [editedData, setEditedData] = useState({
@@ -53,6 +60,31 @@ const PostModal = ({ show, onHide, post, img }) => {
     } catch (error) {
       toast.error("Failed to add comment");
     }
+  };
+
+  const deletePostHandler = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      deletePost(post._id);
+      Swal.fire("Deleted!", "Your post has been deleted.", "success");
+    }
+  };
+
+  const moderatePostHandler = async () => {
+    moderatePost(post._id, {
+      onSuccess: () => {
+        toast.success("moderated");
+      },
+    });
   };
 
   const handleChange = (field, value) => {
@@ -142,70 +174,91 @@ const PostModal = ({ show, onHide, post, img }) => {
           <>
             <p>{parseFloat(post.price?.$numberDecimal).toFixed(2)} eur</p>
             <p>{post.description}</p>
-            {isAuthor && (
+            {(isAuthor || user.role === "admin") && (
+              <>
+                <Button
+                  variant="outline-primary"
+                  onClick={() => setIsEditing(true)}
+                >
+                  Edit Post
+                </Button>
+                <Button variant="outline-primary" onClick={deletePostHandler}>
+                  Delete post
+                </Button>
+              </>
+            )}
+            {user.role === "admin" && (
               <Button
-                variant="outline-primary"
-                onClick={() => setIsEditing(true)}
+                variant={
+                  post.status === "active"
+                    ? "outline-danger"
+                    : "outline-warning"
+                }
+                onClick={moderatePostHandler}
               >
-                Edit Post
+                {post.status === "active" ? "Block post" : "Unblock post"}
               </Button>
             )}
             {/* Comments Section */}
-            <div className="mt-4">
-              <h5>Comments</h5>
+            {post.status === "active" && (
+              <div className="mt-4">
+                <h5>Comments</h5>
 
-              {/* Comments List */}
-              {post.comments?.length > 0 ? (
-                <ListGroup className="mb-3">
-                  {post.comments.map((comment) => (
-                    <ListGroup.Item key={comment._id}>
-                      <div className="d-flex justify-content-between align-items-center mb-1">
-                        <div className="d-flex align-items-center">
-                          <strong className="me-2">
-                            {comment.author?.name || "Anonymous"}
-                          </strong>
-                          {(user?._id === comment.author?._id || isAuthor) && (
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              onClick={() => handleDeleteComment(comment._id)}
-                              className="py-0 px-1"
-                            >
-                              Delete
-                            </Button>
-                          )}
+                {/* Comments List */}
+                {post.comments?.length > 0 ? (
+                  <ListGroup className="mb-3">
+                    {post.comments.map((comment) => (
+                      <ListGroup.Item key={comment._id}>
+                        <div className="d-flex justify-content-between align-items-center mb-1">
+                          <div className="d-flex align-items-center">
+                            <strong className="me-2">
+                              {comment.author?.name || "Anonymous"}
+                            </strong>
+                            {(user?._id === comment.author?._id ||
+                              isAuthor ||
+                              user.role === "admin") && (
+                              <Button
+                                variant="outline-danger"
+                                size="sm"
+                                onClick={() => handleDeleteComment(comment._id)}
+                                className="py-0 px-1"
+                              >
+                                Delete
+                              </Button>
+                            )}
+                          </div>
+                          <small className="text-muted">
+                            {new Date(comment.createdAt).toLocaleString()}
+                          </small>
                         </div>
-                        <small className="text-muted">
-                          {new Date(comment.createdAt).toLocaleString()}
-                        </small>
-                      </div>
-                      <p className="mb-0">{comment.content}</p>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              ) : (
-                <p className="text-muted">No comments yet</p>
-              )}
+                        <p className="mb-0">{comment.content}</p>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                ) : (
+                  <p className="text-muted">No comments yet</p>
+                )}
 
-              {/* Add Comment Form */}
-              <Form.Group className="mb-3">
-                <Form.Label>Add a comment</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={commentContent}
-                  onChange={(e) => setCommentContent(e.target.value)}
-                  placeholder="Write your comment here..."
-                />
-              </Form.Group>
-              <Button
-                variant="primary"
-                onClick={handleCommentSubmit}
-                disabled={!commentContent.trim()}
-              >
-                Post Comment
-              </Button>
-            </div>
+                {/* Add Comment Form */}
+                <Form.Group className="mb-3">
+                  <Form.Label>Add a comment</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={commentContent}
+                    onChange={(e) => setCommentContent(e.target.value)}
+                    placeholder="Write your comment here..."
+                  />
+                </Form.Group>
+                <Button
+                  variant="primary"
+                  onClick={handleCommentSubmit}
+                  disabled={!commentContent.trim()}
+                >
+                  Post Comment
+                </Button>
+              </div>
+            )}
           </>
         )}
       </Modal.Body>

@@ -44,9 +44,9 @@ const deleteComment=asyncHandler(async(req,res)=>{
   const isCommentAuthor = comment.author?._id.equals(userId);
   const isPostAuthor = comment.post?.author?._id.equals(userId);
 
-  if (!isCommentAuthor && !isPostAuthor) {
+  if (!isCommentAuthor && !isPostAuthor && req.user.role!=='admin') {
     return res.status(403).json({ 
-      message: "Unauthorized - You must be the comment author or post owner" 
+      message: "Unauthorized - You must be the comment author or post owner or admin" 
     });
   }
 

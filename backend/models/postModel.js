@@ -51,7 +51,7 @@ const postSchema = new mongoose.Schema({
     likes: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      unique: true
+      default:[]
     }],
     createdAt: {
       type: Date,
@@ -87,5 +87,11 @@ postSchema.query.blocked = function() {
 postSchema.query.liked=function(userId){
   return this.where({likes:userId})
 }
+
+postSchema.pre('findOneAndDelete', async function(next) {
+  const post = await this.model.findOne(this.getFilter());
+  await mongoose.model('Comment').deleteMany({ post: post._id });
+  next();
+});
   
 module.exports=mongoose.model('Post',postSchema)

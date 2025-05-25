@@ -17,6 +17,7 @@ import NoAuthorization from "./screens/NoAuthorization.jsx";
 import CreatePostScreen from "./screens/CreatePostScreen.jsx";
 import LikesScreen from "./screens/LikesScreen.jsx";
 import MyPosts from "./screens/MyPosts.jsx";
+import BlockedPosts from "./screens/AdminBlockedPosts.jsx";
 
 const queryClient = new QueryClient();
 
@@ -42,7 +43,10 @@ const router = createBrowserRouter([
       {
         path: "admin",
         element: <PrivateRoute allowed={["admin"]} />,
-        children: [{ path: "panel", element: <AdminScreen /> }],
+        children: [
+          { path: "panel", element: <AdminScreen /> },
+          { path: "blocked", element: <BlockedPosts /> },
+        ],
       },
       { path: "*", element: <NotFoundScreen /> },
     ],
