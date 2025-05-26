@@ -23,6 +23,7 @@ const RegisterScreen = () => {
     mutationFn: registerUser,
     onSuccess: () => {
       navigate("/");
+      window.location.reload();
     },
     onError: (err) => {
       toast.error(err.message || "Registration failed");
